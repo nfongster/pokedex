@@ -31,7 +31,12 @@ func getRegistry() map[string]cliCommand {
 		"map": {
 			name:        "map",
 			description: "Displays the next 20 locations",
-			callback:    commandMap,
+			callback:    commandMapNext,
+		},
+		"mapb": {
+			name:        "mapb",
+			description: "Displays the previous 20 locations",
+			callback:    commandMapPrevious,
 		},
 	}
 }
@@ -71,8 +76,24 @@ type Location struct {
 	URL  string `json:"url"`
 }
 
-func commandMap(c *Config) error {
-	res, err := http.Get(c.Next)
+func commandMapNext(c *Config) error {
+	if c.Next == "" {
+		fmt.Println("you're on the last page")
+		return nil
+	}
+	return commandMap(c, c.Next)
+}
+
+func commandMapPrevious(c *Config) error {
+	if c.Previous == "" {
+		fmt.Println("you're on the first page")
+		return nil
+	}
+	return commandMap(c, c.Previous)
+}
+
+func commandMap(c *Config, url string) error {
+	res, err := http.Get(url)
 	if err != nil {
 		return err
 	}
