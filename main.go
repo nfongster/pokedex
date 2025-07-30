@@ -2,8 +2,10 @@ package main
 
 import (
 	"bufio"
+	"encoding/json"
 	"fmt"
 	"io"
+	"net/http"
 	"os"
 	"strings"
 )
@@ -26,6 +28,11 @@ func getRegistry() map[string]cliCommand {
 			description: "Displays a help message",
 			callback:    commandHelp,
 		},
+		"map": {
+			name:        "map",
+			description: "Displays the next 20 locations",
+			callback:    commandMap,
+		},
 	}
 }
 
@@ -44,6 +51,44 @@ func commandHelp() error {
 	for name, cmd := range getRegistry() {
 		fmt.Printf("%s: %s\n", name, cmd.description)
 	}
+	return nil
+}
+
+type LocationBatch struct {
+	Count    int        `json:"count"`
+	Next     string     `json:"next"`
+	Previous string     `json:"previous"`
+	Results  []Location `json:"results"`
+}
+
+type Location struct {
+	Name string `json:"name"`
+	URL  string `json:"url"`
+}
+
+func commandMap() error {
+	res, err := http.Get("https://pokeapi.co/api/v2/location-area")
+	if err != nil {
+		return err
+	}
+	defer res.Body.Close()
+
+	bytes, err := io.ReadAll(res.Body)
+	if res.StatusCode > 299 {
+		return fmt.Errorf("response failed with status code: %d", res.StatusCode)
+	} else if err != nil {
+		return err
+	}
+
+	batch := LocationBatch{}
+	if err := json.Unmarshal(bytes, &batch); err != nil {
+		return err
+	}
+
+	for _, location := range batch.Results {
+		fmt.Println(location.Name)
+	}
+
 	return nil
 }
 
