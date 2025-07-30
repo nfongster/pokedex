@@ -1,6 +1,10 @@
 package main
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/nfongster/pokedex/internal/cmd"
+)
 
 func TestCleanInput(t *testing.T) {
 	cases := []struct {
@@ -34,7 +38,7 @@ func TestCleanInput(t *testing.T) {
 	}
 
 	for _, c := range cases {
-		actual := cleanInput(c.input)
+		actual := cmd.CleanInput(c.input)
 		if len(actual) != len(c.expected) {
 			t.Errorf("Actual (%d) and expected (%d) lengths were not equal!", len(actual), len(c.expected))
 		}
