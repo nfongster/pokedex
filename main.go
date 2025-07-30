@@ -13,7 +13,7 @@ import (
 type cliCommand struct {
 	name        string
 	description string
-	callback    func() error
+	callback    func(*Config) error
 }
 
 func getRegistry() map[string]cliCommand {
@@ -40,13 +40,13 @@ func cleanInput(text string) []string {
 	return strings.Fields(strings.ToLower(text))
 }
 
-func commandExit() error {
+func commandExit(c *Config) error {
 	fmt.Println("Closing the Pokedex... Goodbye!")
 	os.Exit(0)
 	return nil
 }
 
-func commandHelp() error {
+func commandHelp(c *Config) error {
 	fmt.Printf("Welcome to the Pokedex!\nUsage:\n\n")
 	for name, cmd := range getRegistry() {
 		fmt.Printf("%s: %s\n", name, cmd.description)
@@ -61,13 +61,18 @@ type LocationBatch struct {
 	Results  []Location `json:"results"`
 }
 
+type Config struct {
+	Next     string
+	Previous string
+}
+
 type Location struct {
 	Name string `json:"name"`
 	URL  string `json:"url"`
 }
 
-func commandMap() error {
-	res, err := http.Get("https://pokeapi.co/api/v2/location-area")
+func commandMap(c *Config) error {
+	res, err := http.Get(c.Next)
 	if err != nil {
 		return err
 	}
@@ -89,13 +94,19 @@ func commandMap() error {
 		fmt.Println(location.Name)
 	}
 
+	c.Next = batch.Next
+	c.Previous = batch.Previous
 	return nil
 }
 
 func main() {
-
 	reader := bufio.NewReader(io.Reader(os.Stdin))
 	scanner := bufio.NewScanner(reader)
+	config := Config{
+		Next:     "https://pokeapi.co/api/v2/location-area",
+		Previous: "",
+	}
+
 	for {
 		fmt.Print("Pokedex > ")
 		success := scanner.Scan()
@@ -108,7 +119,7 @@ func main() {
 			fmt.Println("Please type a command.")
 		} else if command, exists := getRegistry()[cleanInput[0]]; !exists {
 			fmt.Println("Unknown command")
-		} else if err := command.callback(); err != nil {
+		} else if err := command.callback(&config); err != nil {
 			fmt.Printf("Error executing command: %v\n", err)
 		}
 	}
