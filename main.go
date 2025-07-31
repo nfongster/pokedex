@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"time"
 
 	"github.com/nfongster/pokedex/internal/cmd"
+	"github.com/nfongster/pokedex/internal/pokecache"
 )
 
 func main() {
@@ -15,6 +17,7 @@ func main() {
 	config := cmd.Config{
 		Next:     "https://pokeapi.co/api/v2/location-area",
 		Previous: "",
+		Cache:    *pokecache.NewCache(5 * time.Second),
 	}
 
 	for {

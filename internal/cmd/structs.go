@@ -1,5 +1,7 @@
 package cmd
 
+import "github.com/nfongster/pokedex/internal/pokecache"
+
 type CliCommand struct {
 	Name        string
 	Description string
@@ -19,4 +21,5 @@ type LocationBatch struct {
 type Config struct {
 	Next     string
 	Previous string
+	Cache    pokecache.Cache
 }
