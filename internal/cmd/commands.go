@@ -10,13 +10,13 @@ import (
 	"github.com/nfongster/pokedex/internal/pokecache"
 )
 
-func CommandExit(c *Config) error {
+func CommandExit(c *Config, args ...string) error {
 	fmt.Println("Closing the Pokedex... Goodbye!")
 	os.Exit(0)
 	return nil
 }
 
-func CommandHelp(c *Config) error {
+func CommandHelp(c *Config, args ...string) error {
 	fmt.Printf("Welcome to the Pokedex!\nUsage:\n\n")
 	for name, cmd := range GetRegistry() {
 		fmt.Printf("%s: %s\n", name, cmd.Description)
@@ -24,7 +24,7 @@ func CommandHelp(c *Config) error {
 	return nil
 }
 
-func CommandMapNext(c *Config) error {
+func CommandMapNext(c *Config, args ...string) error {
 	if c.Next == "" {
 		fmt.Println("you're on the last page")
 		return nil
@@ -32,12 +32,44 @@ func CommandMapNext(c *Config) error {
 	return commandMap(c, c.Next)
 }
 
-func CommandMapPrevious(c *Config) error {
+func CommandMapPrevious(c *Config, args ...string) error {
 	if c.Previous == "" {
 		fmt.Println("you're on the first page")
 		return nil
 	}
 	return commandMap(c, c.Previous)
+}
+
+func CommandExplore(c *Config, args ...string) error {
+	if len(args) == 0 {
+		return fmt.Errorf("please specify a location to explore")
+	}
+
+	location := args[0]
+	url := getExploreUrl(location)
+	bytes, err := getByteArray(&c.Cache, url)
+	if err != nil {
+		return err
+	}
+	if _, cached := c.Cache.Get(url); !cached {
+		//fmt.Printf("\033[32mAdding data from %s to cache\n\033[0m", url)
+		c.Cache.Add(url, bytes)
+	}
+
+	areaData := LocationArea{}
+	if err := json.Unmarshal(bytes, &areaData); err != nil {
+		return err
+	}
+
+	fmt.Printf("Exploring %s...\nFound Pokemon:\n", location)
+	for _, encounter := range areaData.PokemonEncounters {
+		fmt.Printf(" - %s\n", encounter.Pokemon.Name)
+	}
+	return nil
+}
+
+func getExploreUrl(location string) string {
+	return fmt.Sprintf("https://pokeapi.co/api/v2/location-area/%s", location)
 }
 
 func commandMap(c *Config, url string) error {

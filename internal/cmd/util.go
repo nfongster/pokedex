@@ -24,6 +24,11 @@ func GetRegistry() map[string]CliCommand {
 			Description: "Displays the previous 20 locations",
 			Callback:    CommandMapPrevious,
 		},
+		"explore": {
+			Name:        "explore",
+			Description: "Explore a given area.  Pass the area as an argument.",
+			Callback:    CommandExplore,
+		},
 	}
 }
 

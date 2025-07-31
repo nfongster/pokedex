@@ -27,12 +27,16 @@ func main() {
 			panic(fmt.Sprintf("Error: %v", scanner.Err()))
 		}
 		cleanInput := cmd.CleanInput(scanner.Text())
+		args := []string{}
+		if len(cleanInput) > 1 {
+			args = cleanInput[1:]
+		}
 
 		if len(cleanInput) == 0 {
 			fmt.Println("Please type a command.")
 		} else if command, exists := cmd.GetRegistry()[cleanInput[0]]; !exists {
 			fmt.Println("Unknown command")
-		} else if err := command.Callback(&config); err != nil {
+		} else if err := command.Callback(&config, args...); err != nil {
 			fmt.Printf("Error executing command: %v\n", err)
 		}
 	}
