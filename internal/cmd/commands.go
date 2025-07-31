@@ -102,8 +102,11 @@ func CommandCatch(c *Config, args ...string) error {
 
 func tryCatchPokemon(exp int) bool {
 	//fmt.Printf(" Base Exp: %d\n", exp)
-	randomNumber := rand.Float64()
-	return (randomNumber + 1.0/float64(exp)) >= 0.5
+	// Scale base experience (typically 50-300) to a catch rate
+	maxChance := 0.8 // 80% for easiest Pokemon
+	minChance := 0.1 // 10% for hardest Pokemon
+	catchChance := maxChance - (float64(exp-50)/250.0)*(maxChance-minChance)
+	return rand.Float64() < catchChance
 }
 
 func commandMap(c *Config, url string) error {
