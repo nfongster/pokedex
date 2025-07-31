@@ -6,6 +6,8 @@ import (
 	"io"
 	"net/http"
 	"os"
+
+	"github.com/nfongster/pokedex/internal/pokecache"
 )
 
 func CommandExit(c *Config) error {
@@ -39,17 +41,12 @@ func CommandMapPrevious(c *Config) error {
 }
 
 func commandMap(c *Config, url string) error {
-	res, err := http.Get(url)
+	bytes, err := getByteArray(&c.Cache, url)
 	if err != nil {
 		return err
 	}
-	defer res.Body.Close()
-
-	bytes, err := io.ReadAll(res.Body)
-	if res.StatusCode > 299 {
-		return fmt.Errorf("response failed with status code: %d", res.StatusCode)
-	} else if err != nil {
-		return err
+	if _, cached := c.Cache.Get(url); !cached {
+		c.Cache.Add(url, bytes)
 	}
 
 	batch := LocationBatch{}
@@ -64,4 +61,22 @@ func commandMap(c *Config, url string) error {
 	c.Next = batch.Next
 	c.Previous = batch.Previous
 	return nil
+}
+
+func getByteArray(c *pokecache.Cache, url string) ([]byte, error) {
+	if data, cached := c.Get(url); cached {
+		return data, nil
+	}
+
+	res, err := http.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode > 299 {
+		return nil, fmt.Errorf("response failed with status code: %d", res.StatusCode)
+	}
+
+	return io.ReadAll(res.Body)
 }
