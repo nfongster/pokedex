@@ -15,7 +15,7 @@ func main() {
 	reader := bufio.NewReader(io.Reader(os.Stdin))
 	scanner := bufio.NewScanner(reader)
 	config := cmd.Config{
-		Next:     "https://pokeapi.co/api/v2/location-area",
+		Next:     "https://pokeapi.co/api/v2/location-area?offset=0&limit=20",
 		Previous: "",
 		Cache:    *pokecache.NewCache(5 * time.Second),
 	}

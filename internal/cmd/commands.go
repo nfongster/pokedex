@@ -46,6 +46,7 @@ func commandMap(c *Config, url string) error {
 		return err
 	}
 	if _, cached := c.Cache.Get(url); !cached {
+		//fmt.Printf("\033[32mAdding data from %s to cache\n\033[0m", url)
 		c.Cache.Add(url, bytes)
 	}
 
@@ -65,6 +66,7 @@ func commandMap(c *Config, url string) error {
 
 func getByteArray(c *pokecache.Cache, url string) ([]byte, error) {
 	if data, cached := c.Get(url); cached {
+		//fmt.Println("\033[32mCache hit\033[0m")
 		return data, nil
 	}
 

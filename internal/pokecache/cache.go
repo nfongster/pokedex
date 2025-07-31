@@ -57,6 +57,7 @@ func (c *Cache) reapLoop() {
 		c.mu.Lock()
 		for key, entry := range c.Entries {
 			if entry.createdAt.Before(time) {
+				//fmt.Println("\033[32mdeleting data from cache\033[0m")
 				delete(c.Entries, key)
 			}
 		}
