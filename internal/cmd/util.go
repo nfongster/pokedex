@@ -37,6 +37,11 @@ func GetRegistry() map[string]CliCommand {
 			Description: "Catch a pokemon.  Pass the name of the pokemon as an argument.",
 			Callback:    CommandCatch,
 		},
+		"inspect": {
+			Name:        "inspect",
+			Description: "Inspect a pokemon's stats.",
+			Callback:    CommandInspect,
+		},
 	}
 }
 
