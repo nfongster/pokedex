@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"math/rand"
 	"net/http"
 	"os"
 
@@ -90,9 +91,19 @@ func CommandCatch(c *Config, args ...string) error {
 	}
 
 	fmt.Printf("Throwing a Pokeball at %s...\n", name)
-	// TODO: Cache pokemon in pokedex
-	// TODO: Randomize ability to capture
+	if caught := tryCatchPokemon(pokemon.BaseExperience); caught {
+		fmt.Printf("%s was caught!\n", name)
+		c.Pokedex[name] = pokemon
+	} else {
+		fmt.Printf("%s escaped!\n", name)
+	}
 	return nil
+}
+
+func tryCatchPokemon(exp int) bool {
+	//fmt.Printf(" Base Exp: %d\n", exp)
+	randomNumber := rand.Float64()
+	return (randomNumber + 1.0/float64(exp)) >= 0.5
 }
 
 func commandMap(c *Config, url string) error {

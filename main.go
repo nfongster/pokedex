@@ -17,6 +17,7 @@ func main() {
 	config := cmd.Config{
 		Next:     "https://pokeapi.co/api/v2/location-area?offset=0&limit=20",
 		Previous: "",
+		Pokedex:  map[string]cmd.Pokemon{},
 		Cache:    *pokecache.NewCache(5 * time.Second),
 	}
 

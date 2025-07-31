@@ -21,6 +21,7 @@ type LocationBatch struct {
 type Config struct {
 	Next     string
 	Previous string
+	Pokedex  map[string]Pokemon
 	Cache    pokecache.Cache
 }
 
