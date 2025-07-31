@@ -46,7 +46,7 @@ func CommandExplore(c *Config, args ...string) error {
 	}
 
 	location := args[0]
-	url := getExploreUrl(location)
+	url := getLocationAreaUrl(location)
 	bytes, err := getByteArray(&c.Cache, url)
 	if err != nil {
 		return err
@@ -68,8 +68,31 @@ func CommandExplore(c *Config, args ...string) error {
 	return nil
 }
 
-func getExploreUrl(location string) string {
-	return fmt.Sprintf("https://pokeapi.co/api/v2/location-area/%s", location)
+func CommandCatch(c *Config, args ...string) error {
+	if len(args) == 0 {
+		return fmt.Errorf("please specify a pokemon to catch")
+	}
+
+	name := args[0]
+	url := getPokemonUrl(name)
+	bytes, err := getByteArray(&c.Cache, url)
+	if err != nil {
+		return err
+	}
+	if _, cached := c.Cache.Get(url); !cached {
+		//fmt.Printf("\033[32mAdding data from %s to cache\n\033[0m", url)
+		c.Cache.Add(url, bytes)
+	}
+
+	pokemon := Pokemon{}
+	if err := json.Unmarshal(bytes, &pokemon); err != nil {
+		return err
+	}
+
+	fmt.Printf("Throwing a Pokeball at %s...\n", name)
+	// TODO: Cache pokemon in pokedex
+	// TODO: Randomize ability to capture
+	return nil
 }
 
 func commandMap(c *Config, url string) error {

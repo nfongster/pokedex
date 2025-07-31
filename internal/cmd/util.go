@@ -1,6 +1,9 @@
 package cmd
 
-import "strings"
+import (
+	"fmt"
+	"strings"
+)
 
 func GetRegistry() map[string]CliCommand {
 	return map[string]CliCommand{
@@ -26,12 +29,25 @@ func GetRegistry() map[string]CliCommand {
 		},
 		"explore": {
 			Name:        "explore",
-			Description: "Explore a given area.  Pass the area as an argument.",
+			Description: "Explore an area.  Pass the name of the area as an argument.",
 			Callback:    CommandExplore,
+		},
+		"catch": {
+			Name:        "catch",
+			Description: "Catch a pokemon.  Pass the name of the pokemon as an argument.",
+			Callback:    CommandCatch,
 		},
 	}
 }
 
 func CleanInput(text string) []string {
 	return strings.Fields(strings.ToLower(text))
+}
+
+func getLocationAreaUrl(location string) string {
+	return fmt.Sprintf("https://pokeapi.co/api/v2/location-area/%s", location)
+}
+
+func getPokemonUrl(name string) string {
+	return fmt.Sprintf("https://pokeapi.co/api/v2/pokemon/%s", name)
 }
